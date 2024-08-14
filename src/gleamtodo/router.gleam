@@ -1,5 +1,7 @@
-import gleam/string_builder
+import gleamtodo/pages
+import gleamtodo/pages/layout.{layout}
 import gleamtodo/web.{type Context}
+import lustre/element
 import wisp.{type Request, type Response}
 
 pub fn handle_request(req: Request, ctx: Context) -> Response {
@@ -9,7 +11,12 @@ pub fn handle_request(req: Request, ctx: Context) -> Response {
   // Handle routes.
   case wisp.path_segments(req) {
     // Homepage
-    [] -> wisp.html_response(string_builder.from_string("Home"), 200)
+    [] -> {
+      [pages.home()]
+      |> layout
+      |> element.to_document_string_builder
+      |> wisp.html_response(200)
+    }
 
     // Empty responses
     ["internal-server-error"] -> wisp.internal_server_error()
