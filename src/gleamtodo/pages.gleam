@@ -1,5 +1,7 @@
+import gleamtodo/models/item.{type Item}
 import gleamtodo/pages/home
 
-pub fn home() {
-  home.root()
+/// Render the Home page.
+pub fn home(items: List(Item)) {
+  home.root(items)
 }
