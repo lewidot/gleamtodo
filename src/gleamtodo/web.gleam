@@ -1,10 +1,11 @@
 import gleam/bool
 import gleam/string_builder
+import gleamtodo/models/item.{type Item}
 import wisp
 
 /// Context type for sharing data across requests.
 pub type Context {
-  Context(static_directory: String, items: List(String))
+  Context(static_directory: String, items: List(Item))
 }
 
 /// Global middleware handler.
