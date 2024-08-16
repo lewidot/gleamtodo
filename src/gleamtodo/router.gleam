@@ -1,5 +1,7 @@
+import gleam/http
 import gleamtodo/pages
 import gleamtodo/pages/layout.{layout}
+import gleamtodo/routes/item_routes.{items_middleware}
 import gleamtodo/web.{type Context}
 import lustre/element
 import wisp.{type Request, type Response}
@@ -7,6 +9,7 @@ import wisp.{type Request, type Response}
 pub fn handle_request(req: Request, ctx: Context) -> Response {
   // Apply middleware.
   use _req <- web.middleware(req, ctx)
+  use ctx <- items_middleware(req, ctx)
 
   // Handle routes.
   case wisp.path_segments(req) {
@@ -16,6 +19,10 @@ pub fn handle_request(req: Request, ctx: Context) -> Response {
       |> layout
       |> element.to_document_string_builder
       |> wisp.html_response(200)
+    }
+    ["items", "create"] -> {
+      use <- wisp.require_method(req, http.Post)
+      item_routes.post_create_item(req, ctx)
     }
 
     // Empty responses
