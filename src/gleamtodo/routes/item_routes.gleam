@@ -1,7 +1,9 @@
 import gleam/dynamic
 import gleam/json
 import gleam/list
-import gleam/option.{Some}
+import gleam/option.{None, Some}
+import gleam/result
+import gleam/string
 import gleamtodo/models/item.{type Item, create_item}
 import gleamtodo/web.{type Context, Context}
 import wisp.{type Request, type Response}
@@ -53,4 +55,50 @@ fn create_items_from_json(items: List(ItemsJson)) -> List(Item) {
     let ItemsJson(id, title, completed) = item
     create_item(Some(id), title, completed)
   })
+}
+
+/// Handler function for creating todo items.
+///
+/// /items/create
+pub fn post_create_item(req: Request, ctx: Context) {
+  use form <- wisp.require_form(req)
+
+  let current_items = ctx.items
+
+  let result = {
+    use item_title <- result.try(list.key_find(form.values, "todo_title"))
+    let new_item = create_item(None, item_title, False)
+    list.append(current_items, [new_item])
+    |> todos_to_json
+    |> Ok
+  }
+
+  case result {
+    Ok(todos) ->
+      wisp.redirect("/")
+      |> wisp.set_cookie(req, "items", todos, wisp.PlainText, 60 * 60 * 24)
+
+    Error(_) -> {
+      wisp.bad_request()
+    }
+  }
+}
+
+/// Cast list of todo Item to a Json string.
+fn todos_to_json(items: List(Item)) -> String {
+  "["
+  <> items
+  |> list.map(item_to_json)
+  |> string.join(",")
+  <> "]"
+}
+
+/// Cast a todo Item to a Json string.
+fn item_to_json(item: Item) -> String {
+  json.object([
+    #("id", json.string(item.id)),
+    #("title", json.string(item.title)),
+    #("completed", json.bool(item.item_status_to_bool(item.status))),
+  ])
+  |> json.to_string
 }
