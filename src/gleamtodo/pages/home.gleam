@@ -71,7 +71,7 @@ fn item(item: Item) -> Element(t) {
     form(
       [
         attribute.method("POST"),
-        attribute.action("/items/" <> item.id <> "/completion?_method=DELETE"),
+        attribute.action("/items/" <> item.id <> "?_method=DELETE"),
       ],
       [button([class("todo__delete")], [svg_icon_delete()])],
     ),
