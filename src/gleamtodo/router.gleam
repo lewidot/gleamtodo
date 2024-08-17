@@ -8,7 +8,7 @@ import wisp.{type Request, type Response}
 
 pub fn handle_request(req: Request, ctx: Context) -> Response {
   // Apply middleware.
-  use _req <- web.middleware(req, ctx)
+  use req <- web.middleware(req, ctx)
   use ctx <- items_middleware(req, ctx)
 
   // Handle routes.
